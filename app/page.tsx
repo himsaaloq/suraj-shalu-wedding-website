@@ -2,6 +2,7 @@ import Header from "./components/Header";
 import Countdown from "./components/Countdown";
 import Events from "./components/Events";
 import ScrollEffects from "./components/ScrollEffects";
+import IntroGate from "./components/IntroGate";
 import { CornerOrnaments, FloralDivider } from "./components/Ornaments";
 import { vars } from "./lib/css";
 
@@ -26,6 +27,7 @@ const reveal = (delay = 0) => vars({ "--d": `${delay}ms` });
 export default function Home() {
   return (
     <main>
+      <IntroGate />
       <ScrollEffects />
       <Header />
 
@@ -103,7 +105,7 @@ export default function Home() {
       <section className="countdown-section">
         <p className="section-kicker gold-text" data-reveal style={reveal(0)}>THE WEDDING CELEBRATION</p>
         <h2 data-reveal style={reveal(100)}>शुभ घड़ी का इंतज़ार</h2>
-        <p className="countdown-caption" data-reveal style={reveal(200)}>बारात प्रस्थान · 11 दिसंबर 2026 · प्रात, 8 बजे</p>
+        <p className="countdown-caption" data-reveal style={reveal(200)}>बारात प्रस्थान · 11 दिसंबर 2026 · रात 8 बजे</p>
         <Countdown />
       </section>
 

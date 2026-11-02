@@ -37,8 +37,8 @@ export const viewport: Viewport = {
 const FONTS_URL =
   "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&display=swap";
 
-// Runs before first paint so reveal-on-scroll elements never flash.
-const JS_FLAG = "document.documentElement.classList.add('js')";
+// Runs before first paint: enables reveal-on-scroll and shows the opening screen (no flash of the page behind it).
+const JS_FLAG = "document.documentElement.classList.add('js','intro')";
 
 export default function RootLayout({
   children,
