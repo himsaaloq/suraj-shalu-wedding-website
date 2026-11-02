@@ -25,9 +25,12 @@ npm start
 
 ```text
 app/
-  globals.css       # Theme, responsive layout, animations
-  layout.tsx        # Metadata and root layout
-  page.tsx          # Wedding invitation and interactive sections
+  globals.css       # Theme, responsive layout, animations (motion layer at the bottom)
+  layout.tsx        # Metadata, font loading, root layout
+  page.tsx          # Wedding invitation (server component)
+  components/       # Header (menu + music), Countdown, Events, ScrollEffects, Ornaments
+  data/events.ts    # The seven wedding events
+  lib/css.ts        # Typed helper for inline CSS variables
 public/
   favicon.svg
   music/
@@ -47,6 +50,9 @@ public/
 - Background music toggle
 - Open Graph metadata and custom favicon
 - Keyboard focus states and reduced-motion support
+- Hero entrance animation, scroll-reveal sections, scroll progress bar, gentle parallax, floating gold sparkles
+- Music fades in/out and pauses automatically when the tab is hidden
+- Optimised assets: resized photos with WebP, 96 kbps music, long-lived cache headers (next.config.mjs)
 
 ## Confirmed event details
 
