@@ -2,8 +2,44 @@
 
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
-// @ts-ignore: Next.js resolves CSS side-effect imports through its bundler.
-import "./varmala.css";
+
+const SCENE_CSS = `/* Varmala scene: groom & bride walk towards each other as the visitor scrolls (--p goes 0 → 1). */
+.vm-scene{--p:0;position:relative;max-width:680px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 18px 50px #4a263022;border:1px solid #d3b57c;background:#fbe3b8}
+.vm-scene svg{display:block;width:100%;height:auto}
+
+.vm-groom{transform:translateX(calc(var(--p,0) * 106px))}
+.vm-bride{transform:translateX(calc(var(--p,0) * -106px))}
+.vm-breath{animation:vm-breath 3.4s ease-in-out infinite}
+.vm-bride .vm-breath{animation-delay:-1.7s}
+@keyframes vm-breath{50%{transform:translateY(-3px)}}
+.vm-tilt-groom{transform:rotate(calc(var(--p,0) * 5deg))}
+.vm-tilt-bride{transform:rotate(calc(var(--p,0) * -5deg))}
+
+.vm-link{opacity:clamp(0,calc((var(--p,0) - .8) * 6),1)}
+.vm-heart{transform:scale(clamp(0,calc((var(--p,0) - .86) * 8),1))}
+.vm-pulse{animation:vm-pulse 1.4s ease-in-out infinite}
+@keyframes vm-pulse{50%{transform:scale(1.14)}}
+.vm-joy{opacity:clamp(0,calc((var(--p,0) - .84) * 7),1)}
+
+.vm-twinkle{animation:vm-twinkle 1.9s ease-in-out infinite}
+@keyframes vm-twinkle{0%,100%{transform:scale(.4);opacity:.3}50%{transform:scale(1.1);opacity:1}}
+
+.vm-petal{animation:vm-fall 5.5s linear infinite;transform-origin:0 0}
+@keyframes vm-fall{from{transform:translate(0,-10px) rotate(0)}to{transform:translate(var(--sx,20px),470px) rotate(420deg)}}
+
+.vm-sway{animation:vm-sway 4.2s ease-in-out infinite}
+@keyframes vm-sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
+.vm-spin{animation:vm-spin 120s linear infinite}
+@keyframes vm-spin{to{transform:rotate(360deg)}}
+.vm-flame{animation:vm-flame 1.1s ease-in-out infinite}
+@keyframes vm-flame{0%,100%{transform:scale(1,1)}50%{transform:scale(.86,1.14)}}
+
+@media(max-width:700px){.vm-scene{border-radius:16px}}
+
+.vm-blink{animation:vm-blink 5.2s ease-in-out infinite}
+.vm-blink-b{animation-delay:-2.1s}
+@keyframes vm-blink{0%,93%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
+`;
 
 /* ---------- helpers ---------- */
 const MARIGOLD = ["#f59e0b", "#fbbf24", "#ea7a12", "#fcd34d"];
@@ -58,6 +94,44 @@ const PETALS = [
 
 const STARS = [[196, 150, 0], [444, 150, .5], [258, 112, 1.1], [382, 112, .3], [180, 262, 1.5], [460, 262, .8], [320, 96, 1.3]] as const;
 
+/** Small zari flower used for embroidery. */
+function Flower({ x, y, s }: { x: number; y: number; s: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      {[0, 72, 144, 216, 288].map((a) => (
+        <circle key={a} cx="0" cy="-3.6" r="2.4" fill="#f0d27c" transform={`rotate(${a})`} />
+      ))}
+      <circle r="1.7" fill="#fff4c4" />
+    </g>
+  );
+}
+
+/** Stack of chooda bangles on the bride's wrist (side = -1 left, 1 right). */
+function Bangles({ side }: { side: -1 | 1 }) {
+  const wx = side * 29;
+  const wy = -186;
+  const bx = side * 0.754;
+  const by = -0.656;
+  const px = 0.656;
+  const py = side * 0.754;
+  return (
+    <g strokeLinecap="round">
+      {Array.from({ length: 6 }, (_, i) => {
+        const cx = wx + bx * (3.6 * i + 3);
+        const cy = wy + by * (3.6 * i + 3);
+        return (
+          <path
+            key={i}
+            d={`M${(cx - px * 7).toFixed(1)} ${(cy - py * 7).toFixed(1)} L${(cx + px * 7).toFixed(1)} ${(cy + py * 7).toFixed(1)}`}
+            stroke={i % 3 === 1 ? "#e9c870" : "#d6203f"}
+            strokeWidth={i % 3 === 1 ? 2.2 : 3.2}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
 export default function VarmalaScene() {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -105,6 +179,7 @@ export default function VarmalaScene() {
 
   return (
     <div className="vm-scene" ref={ref} data-reveal="zoom">
+      <style>{SCENE_CSS}</style>
       <svg
         viewBox="0 0 640 560"
         role="img"
@@ -132,6 +207,41 @@ export default function VarmalaScene() {
             <stop offset="0" stopColor="#f2692e" />
             <stop offset="1" stopColor="#cf3c18" />
           </linearGradient>
+          <linearGradient id="vm-skin-g" x1=".2" y1="0" x2=".8" y2="1">
+            <stop offset="0" stopColor="#efbd92" />
+            <stop offset="1" stopColor="#d3946a" />
+          </linearGradient>
+          <linearGradient id="vm-skin-b" x1=".2" y1="0" x2=".8" y2="1">
+            <stop offset="0" stopColor="#f8d3b3" />
+            <stop offset="1" stopColor="#e2a67e" />
+          </linearGradient>
+          <linearGradient id="vm-sherwani" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#ecd8ab" />
+            <stop offset=".5" stopColor="#fcf2da" />
+            <stop offset="1" stopColor="#ead3a2" />
+          </linearGradient>
+          <linearGradient id="vm-stole" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#923049" />
+            <stop offset="1" stopColor="#5a1228" />
+          </linearGradient>
+          <linearGradient id="vm-gold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#f8e6a6" />
+            <stop offset=".55" stopColor="#d9ae56" />
+            <stop offset="1" stopColor="#b98430" />
+          </linearGradient>
+          <linearGradient id="vm-veil" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ea3f5b" />
+            <stop offset="1" stopColor="#bd1633" />
+          </linearGradient>
+          <linearGradient id="vm-choli" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#cc1531" />
+            <stop offset="1" stopColor="#980c24" />
+          </linearGradient>
+          <pattern id="vm-leheriya" width="15" height="15" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+            <rect width="15" height="15" fill="#f26b2c" />
+            <rect y="5" width="15" height="3" fill="#d1306f" />
+            <rect y="8" width="15" height="3" fill="#ffc23d" />
+          </pattern>
         </defs>
 
         {/* ---------- backdrop ---------- */}
@@ -191,128 +301,202 @@ export default function VarmalaScene() {
         {/* ---------- BRIDE ---------- */}
         <g transform="translate(490 470) scale(.9)">
           <g className="vm-bride">
-            <ellipse cx="0" cy="3" rx="92" ry="9" fill="#3b1a0f" opacity=".18" />
+            <ellipse cx="0" cy="3" rx="98" ry="9" fill="#3b1a0f" opacity=".18" />
             <g className="vm-breath">
-              {/* veil behind */}
-              <path d="M-48 -336 Q-72 -250 -66 -146 L66 -146 Q72 -250 48 -336 Q0 -380 -48 -336Z" fill="#d6203f" opacity=".92" stroke="#e8c970" strokeWidth="3" />
+              {/* dupatta / veil behind */}
+              <path d="M-52 -338 C-84 -270 -78 -190 -72 -138 L72 -138 C78 -190 84 -270 52 -338 C26 -384 -26 -384 -52 -338Z" fill="url(#vm-veil)" stroke="#e8c970" strokeWidth="3" />
+              <path d="M-60 -300 C-74 -240 -70 -190 -66 -150 L66 -150 C70 -190 74 -240 60 -300 C30 -340 -30 -340 -60 -300Z" fill="#ff8aa0" opacity=".2" />
+              <path d="M-72 -138 H72" stroke="#f1d27a" strokeWidth="4" strokeDasharray="7 3" />
               {/* lehenga */}
-              <path d="M-36 -174 Q-48 -96 -92 -10 Q0 6 92 -10 Q48 -96 36 -174Z" fill="url(#vm-lehenga)" />
-              <path d="M-12 -170 Q-18 -90 -40 -8 M12 -170 Q18 -90 40 -8 M0 -170 L0 -2 M-24 -168 Q-34 -90 -66 -9 M24 -168 Q34 -90 66 -9" stroke="#f0d27c" strokeWidth="1.2" opacity=".35" fill="none" />
-              <path d="M-92 -10 Q0 6 92 -10 L85 -30 Q0 -14 -85 -30Z" fill={GOLD} />
-              {[[-40, -70], [0, -60], [40, -70], [-20, -112], [20, -112], [0, -140], [-58, -40], [58, -40]].map(([x, y]) => (
-                <circle key={`${x}${y}`} cx={x} cy={y} r="3.2" fill="#f0d27c" />
+              <path d="M-34 -176 C-42 -120 -64 -60 -98 -8 Q0 8 98 -8 C64 -60 42 -120 34 -176Z" fill="url(#vm-lehenga)" />
+              <path d="M-14 -172 C-22 -110 -42 -50 -58 -4 M14 -172 C22 -110 42 -50 58 -4" stroke="#5e0415" strokeWidth="8" opacity=".16" fill="none" />
+              <path d="M-26 -170 C-36 -110 -60 -56 -80 -6 M26 -170 C36 -110 60 -56 80 -6 M0 -172 L0 0" stroke="#ff8a9c" strokeWidth="1.4" opacity=".3" fill="none" />
+              <path d="M-98 -8 Q0 8 98 -8 L90 -30 Q0 -12 -90 -30Z" fill="url(#vm-gold)" />
+              <path d="M-92 -24 Q0 -6 92 -24" stroke="#7a0b1f" strokeWidth="2.6" fill="none" />
+              <path d="M-88 -16 Q0 2 88 -16" stroke="#fff0b8" strokeWidth="2" strokeDasharray="1 6" strokeLinecap="round" fill="none" />
+              {[[-46, -78, 1], [0, -66, 1.15], [46, -78, 1], [-26, -118, .85], [26, -118, .85], [0, -148, .7], [-66, -44, .9], [66, -44, .9], [-22, -42, .75], [22, -42, .75]].map(([x, y, s]) => (
+                <Flower key={`${x}${y}`} x={x} y={y} s={s} />
               ))}
-              {/* blouse */}
-              <path d="M-35 -250 Q-42 -205 -34 -170 L34 -170 Q42 -205 35 -250 Q0 -260 -35 -250Z" fill="#b60f2b" />
-              <path d="M-35 -174 L35 -174 L36 -164 L-36 -164Z" fill={GOLD} />
-              <path d="M-18 -252 Q0 -228 18 -252" stroke={GOLD} strokeWidth="3" fill="none" />
-              {/* neck + necklaces */}
-              <rect x="-8" y="-272" width="16" height="24" fill={SKIN_B} />
-              <path d="M-24 -250 Q0 -222 24 -250" stroke={GOLD} strokeWidth="5" fill="none" />
-              <path d="M-26 -247 Q0 -196 26 -247" stroke="#f3dc95" strokeWidth="3" fill="none" strokeDasharray="1 5.5" strokeLinecap="round" />
+              {/* blouse + belt */}
+              <path d="M-35 -250 Q-42 -205 -34 -170 L34 -170 Q42 -205 35 -250 Q0 -260 -35 -250Z" fill="url(#vm-choli)" />
+              <path d="M-36 -178 L36 -178 L35 -166 L-35 -166Z" fill="url(#vm-gold)" />
+              {[-26, -13, 0, 13, 26].map((x) => (
+                <circle key={x} cx={x} cy="-160" r="2.4" fill="#f0d27c" />
+              ))}
+              <path d="M-21 -252 Q-10 -234 0 -243 Q10 -234 21 -252" stroke="url(#vm-gold)" strokeWidth="3.2" fill="none" />
+              <path d="M-30 -228 Q-22 -222 -16 -230 M30 -228 Q22 -222 16 -230" stroke="#f0d27c" strokeWidth="1.6" fill="none" opacity=".8" />
+              {/* neck + jewellery */}
+              <rect x="-8" y="-272" width="16" height="24" fill="#e6ac82" />
+              <ellipse cx="0" cy="-268" rx="11" ry="4" fill="#9a5a38" opacity=".22" />
+              <path d="M-24 -251 Q0 -224 24 -251" stroke="url(#vm-gold)" strokeWidth="5.5" fill="none" />
+              {[-16, -8, 0, 8, 16].map((x, i) => (
+                <circle key={x} cx={x} cy={-243 + (i === 2 ? 5 : Math.abs(x) === 8 ? 3 : 0)} r="2.2" fill={i % 2 ? "#2f9e5b" : "#d6203f"} />
+              ))}
+              <path d="M-27 -247 Q0 -194 27 -247" stroke="#fff7de" strokeWidth="3.4" fill="none" strokeDasharray="1 5.2" strokeLinecap="round" />
+              <path d="M0 -212 C-5 -206 -4 -199 0 -195 C4 -199 5 -206 0 -212Z" fill="url(#vm-gold)" stroke="#a97a2a" strokeWidth=".8" />
+              <circle cx="0" cy="-204" r="2" fill="#d6203f" />
               {/* arms */}
-              <path d="M-32 -244 Q-52 -206 -29 -186" stroke={SKIN_B} strokeWidth="15" strokeLinecap="round" fill="none" />
-              <path d="M32 -244 Q52 -206 29 -186" stroke={SKIN_B} strokeWidth="15" strokeLinecap="round" fill="none" />
+              <path d="M-32 -244 Q-52 -206 -29 -186" stroke="#e6ac82" strokeWidth="15" strokeLinecap="round" fill="none" />
+              <path d="M32 -244 Q52 -206 29 -186" stroke="#e6ac82" strokeWidth="15" strokeLinecap="round" fill="none" />
               <path d="M-33 -246 Q-42 -232 -46 -222 M33 -246 Q42 -232 46 -222" stroke="#b60f2b" strokeWidth="17" strokeLinecap="round" fill="none" />
+              <path d="M-40 -229 L-52 -223 M40 -229 L52 -223" stroke="url(#vm-gold)" strokeWidth="3" strokeLinecap="round" />
               {/* head (tilts toward groom) */}
               <g transform="translate(0 -268)">
                 <g className="vm-tilt-bride">
                   <g transform="translate(0 268)">
-                    <circle cx="0" cy="-294" r="27" fill={SKIN_B} />
-                    <path d="M-27 -296 Q-28 -330 0 -332 Q28 -330 27 -296 Q14 -318 0 -318 Q-14 -318 -27 -296Z" fill="#2a1210" />
-                    <path d="M0 -332 L0 -318" stroke="#d6203f" strokeWidth="2.4" />
+                    <path d="M-25 -298 C-25 -320 25 -320 25 -298 C25 -282 16 -268 0 -266 C-16 -268 -25 -282 -25 -298Z" fill="url(#vm-skin-b)" />
+                    <path d="M-26 -298 C-30 -330 30 -330 26 -298 C20 -318 8 -322 0 -322 C-8 -322 -20 -318 -26 -298Z" fill="#241010" />
+                    <path d="M-16 -314 Q0 -324 16 -314" stroke="#6b3b34" strokeWidth="1.6" fill="none" opacity=".7" />
+                    <path d="M0 -322 L0 -312" stroke="#d6203f" strokeWidth="2.2" />
                     <path d="M-33 -296 Q-38 -352 0 -354 Q38 -352 33 -296 L28 -300 Q26 -338 0 -338 Q-26 -338 -28 -300Z" fill="#d6203f" stroke="#e8c970" strokeWidth="2.5" />
-                    <path d="M0 -318 L0 -310" stroke={GOLD} strokeWidth="1.5" />
-                    <circle cx="0" cy="-308" r="3.6" fill={GOLD} />
-                    <circle cx="0" cy="-308" r="1.6" fill="#d6203f" />
-                    <circle cx="0" cy="-300" r="2.3" fill="#c1182f" />
-                    <ellipse cx="-10" cy="-292" rx="3.4" ry="2.3" fill="#2a1210" />
-                    <ellipse cx="10" cy="-292" rx="3.4" ry="2.3" fill="#2a1210" />
-                    <path d="M-15 -299 Q-10 -302 -5 -299 M5 -299 Q10 -302 15 -299" stroke="#2a1210" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-                    <circle cx="7" cy="-281" r="3.4" fill="none" stroke={GOLD} strokeWidth="1.4" />
-                    <path d="M-7 -273 Q0 -268 7 -273 Q0 -277 -7 -273Z" fill="#c1182f" />
-                    <circle cx="-17" cy="-280" r="5" fill="#f08a8a" opacity=".35" />
-                    <circle cx="17" cy="-280" r="5" fill="#f08a8a" opacity=".35" />
-                    <path d="M-29 -286 L-29 -276 M29 -286 L29 -276" stroke={GOLD} strokeWidth="1.4" />
-                    <circle cx="-29" cy="-273" r="3.4" fill={GOLD} />
-                    <circle cx="29" cy="-273" r="3.4" fill={GOLD} />
+                    <path d="M0 -318 L0 -311 M0 -318 Q-12 -314 -22 -304 M0 -318 Q12 -314 22 -304" stroke="#e0bf7e" strokeWidth="1.3" fill="none" />
+                    <path d="M0 -312 C-4.5 -308 -3.5 -303 0 -300 C3.5 -303 4.5 -308 0 -312Z" fill="url(#vm-gold)" stroke="#a97a2a" strokeWidth=".7" />
+                    <circle cx="0" cy="-306" r="1.5" fill="#d6203f" />
+                    <circle cx="0" cy="-299" r="3.6" fill="none" stroke="#e0bf7e" strokeWidth="1" />
+                    <circle cx="0" cy="-299" r="2.2" fill="#c1182f" />
+                    <g transform="translate(0 -293)">
+                      <g className="vm-blink vm-blink-b">
+                        <g transform="translate(0 293)">
+                          <path d="M-17 -293 Q-11 -298 -4 -293 Q-11 -289 -17 -293Z" fill="#fff" />
+                          <path d="M4 -293 Q11 -298 17 -293 Q11 -289 4 -293Z" fill="#fff" />
+                          <circle cx="-10.5" cy="-293.2" r="2.8" fill="#3a1d12" />
+                          <circle cx="10.5" cy="-293.2" r="2.8" fill="#3a1d12" />
+                          <circle cx="-9.6" cy="-294.2" r=".9" fill="#fff" />
+                          <circle cx="11.4" cy="-294.2" r=".9" fill="#fff" />
+                          <path d="M-18 -293 Q-11 -299 -4 -293 M4 -293 Q11 -299 18 -293" stroke="#140a08" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+                          <path d="M-18 -293 L-21 -296 M18 -293 L21 -296" stroke="#140a08" strokeWidth="1.6" strokeLinecap="round" />
+                        </g>
+                      </g>
+                    </g>
+                    <path d="M-18 -302 Q-11 -308 -4 -303.5 M4 -303.5 Q11 -308 18 -302" stroke="#241010" strokeWidth="1.7" fill="none" strokeLinecap="round" />
+                    <path d="M-1.5 -292 Q-4 -285 -2 -282 Q0 -281 2 -282" stroke="#a8663f" strokeWidth="1.3" fill="none" opacity=".6" strokeLinecap="round" />
+                    <circle cx="5.5" cy="-281" r="4.4" fill="none" stroke="url(#vm-gold)" strokeWidth="1.5" />
+                    <circle cx="5.5" cy="-276.4" r="1.7" fill="#fff7de" stroke="#d9b878" strokeWidth=".6" />
+                    <path d="M-8.5 -276 Q-4 -280 0 -277.5 Q4 -280 8.5 -276 Q0 -267.5 -8.5 -276Z" fill="#c9183a" />
+                    <path d="M-10 -277.5 q-1.6 -1.2 -2.6 -3 M10 -277.5 q1.6 -1.2 2.6 -3" stroke="#b9695a" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".7" />
+                    <ellipse cx="0" cy="-271.5" rx="3.2" ry="1" fill="#fff" opacity=".35" />
+                    <circle cx="-16" cy="-280" r="5" fill="#f08a8a" opacity=".3" />
+                    <circle cx="16" cy="-280" r="5" fill="#f08a8a" opacity=".3" />
+                    <path d="M-28 -284 L-28 -279 M28 -284 L28 -279" stroke="#e0bf7e" strokeWidth="1.4" />
+                    <path d="M-32 -278 Q-28 -283 -24 -278 L-25 -270 L-31 -270Z M24 -278 Q28 -283 32 -278 L31 -270 L25 -270Z" fill="url(#vm-gold)" stroke="#a97a2a" strokeWidth=".6" />
+                    <circle cx="-28" cy="-267" r="2" fill="#fff7de" />
+                    <circle cx="28" cy="-267" r="2" fill="#fff7de" />
                   </g>
                 </g>
               </g>
               {/* varmala in her hands */}
               <Garland x1={-28} y1={-182} x2={28} y2={-182} sag={66} count={22} />
               <Garland x1={-26} y1={-176} x2={26} y2={-176} sag={56} count={18} r={5} />
-              <circle cx="-28" cy="-182" r="7.5" fill={SKIN_B} />
-              <circle cx="28" cy="-182" r="7.5" fill={SKIN_B} />
-              <path d="M-36 -192 L-30 -187 M-34 -196 L-27 -190 M36 -192 L30 -187 M34 -196 L27 -190" stroke="#d6203f" strokeWidth="3.4" strokeLinecap="round" />
-              <path d="M-38 -189 L-32 -184 M38 -189 L32 -184" stroke={GOLD} strokeWidth="3" strokeLinecap="round" />
+              <circle cx="-28" cy="-182" r="7.5" fill="#efbb92" />
+              <circle cx="28" cy="-182" r="7.5" fill="#efbb92" />
+              <path d="M-33 -179 q3 5 7 4 M-30 -176 q3 5 7 3 M33 -179 q-3 5 -7 4 M30 -176 q-3 5 -7 3" stroke="#b97a52" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+              <circle cx="-27" cy="-185" r="1.2" fill="#a3361f" />
+              <circle cx="27" cy="-185" r="1.2" fill="#a3361f" />
+              <Bangles side={-1} />
+              <Bangles side={1} />
             </g>
-            <text x="0" y="40" textAnchor="middle" fontSize="24" fontWeight="600" fill="#591b2b"> </text>
+            <text x="0" y="40" textAnchor="middle" fontSize="24" fontWeight="600" fill="#591b2b">आयुष्मती शालू</text>
           </g>
         </g>
 
         {/* ---------- GROOM ---------- */}
         <g transform="translate(150 470) scale(.9)">
           <g className="vm-groom">
-            <ellipse cx="0" cy="3" rx="72" ry="9" fill="#3b1a0f" opacity=".18" />
+            <ellipse cx="0" cy="3" rx="74" ry="9" fill="#3b1a0f" opacity=".18" />
             <g className="vm-breath">
-              {/* shoes + legs */}
-              <path d="M-44 0 Q-44 -12 -26 -14 L-4 -14 L-2 0Z M44 0 Q44 -12 26 -14 L4 -14 L2 0Z" fill="#4a2312" />
-              <circle cx="-44" cy="-4" r="2.6" fill="#d9b878" />
-              <circle cx="44" cy="-4" r="2.6" fill="#d9b878" />
-              <rect x="-34" y="-135" width="30" height="124" rx="6" fill="#f4e6c9" />
-              <rect x="4" y="-135" width="30" height="124" rx="6" fill="#f4e6c9" />
-              <path d="M-33 -30 L-5 -30 M-33 -22 L-5 -22 M5 -30 L33 -30 M5 -22 L33 -22" stroke="#d8c39a" strokeWidth="1.6" />
+              {/* juttis + churidar */}
+              <path d="M-33 -135 L-5 -135 L-4 -12 L-32 -12Z M5 -135 L33 -135 L32 -12 L4 -12Z" fill="#f3e5c8" stroke="#d9c49a" strokeWidth="1" />
+              <path d="M-32 -34 L-4 -34 M-32 -28 L-4 -28 M-32 -22 L-4 -22 M-32 -16 L-4 -16 M4 -34 L32 -34 M4 -28 L32 -28 M4 -22 L32 -22 M4 -16 L32 -16" stroke="#d3bd90" strokeWidth="1.6" />
+              <path d="M-46 0 Q-48 -12 -28 -15 L-5 -15 L-2 0Z M46 0 Q48 -12 28 -15 L5 -15 L2 0Z" fill="#4a2312" stroke="#2a1208" strokeWidth="1" />
+              <path d="M-40 -8 Q-24 -12 -8 -8 M40 -8 Q24 -12 8 -8" stroke="url(#vm-gold)" strokeWidth="2.2" fill="none" />
+              <path d="M-47 -3 Q-52 -8 -46 -12 M47 -3 Q52 -8 46 -12" stroke="#d9b878" strokeWidth="2.4" fill="none" strokeLinecap="round" />
               {/* sherwani */}
-              <path d="M-52 -250 Q-60 -170 -62 -112 L62 -112 Q60 -170 52 -250 Q0 -264 -52 -250Z" fill="#f7e8c9" stroke="#d9b878" strokeWidth="2" />
-              <path d="M-62 -112 L62 -112 L61 -123 L-61 -123Z" fill="#d9b878" />
-              <path d="M0 -262 V-114" stroke="#d9b878" strokeWidth="2.5" />
-              {[-236, -212, -188, -164, -140].map((y) => (
-                <circle key={y} cx="0" cy={y} r="3.2" fill="#b8862e" />
+              <path d="M-50 -250 C-56 -215 -54 -185 -50 -168 C-60 -146 -64 -126 -66 -106 L66 -106 C64 -126 60 -146 50 -168 C54 -185 56 -215 50 -250 C20 -264 -20 -264 -50 -250Z" fill="url(#vm-sherwani)" stroke="#cfae6a" strokeWidth="1.4" />
+              <path d="M-66 -106 L66 -106 L65 -119 L-65 -119Z" fill="url(#vm-gold)" />
+              <path d="M-61 -112 H61" stroke="#8a5f1c" strokeWidth="2.6" strokeDasharray="2 6" />
+              <rect x="-4.5" y="-262" width="9" height="150" fill="url(#vm-gold)" />
+              <path d="M0 -262 V-112" stroke="#8a5f1c" strokeWidth="1.4" strokeDasharray="2 4" />
+              {[-238, -214, -190, -166, -142].map((y) => (
+                <g key={y}>
+                  <circle cx="0" cy={y} r="3.4" fill="#fff3c4" stroke="#a97a2a" strokeWidth="1" />
+                  <circle cx="-.8" cy={y - .8} r="1" fill="#fff" />
+                </g>
+              ))}
+              <path d="M-50 -247 Q-30 -236 -12 -258 M50 -247 Q30 -236 12 -258" stroke="url(#vm-gold)" strokeWidth="2.2" fill="none" />
+              <path d="M-40 -170 Q-30 -160 -20 -170 M40 -170 Q30 -160 20 -170" stroke="#d9b878" strokeWidth="1.6" fill="none" />
+              {[[-26, -214], [-30, -190], [26, -214], [30, -190], [-24, -150], [24, -150]].map(([x, y]) => (
+                <Flower key={`${x}${y}`} x={x} y={y} s={.8} />
               ))}
               {/* stole */}
-              <path d="M-52 -252 L-26 -258 L48 -140 L26 -122Z" fill={WINE} />
-              <path d="M-52 -252 L26 -122" stroke={GOLD} strokeWidth="2.2" />
-              <path d="M26 -124 L48 -142 L53 -94 L31 -88Z" fill={WINE} />
-              <path d="M30 -92 L53 -97" stroke={GOLD} strokeWidth="2.4" />
-              {/* collar, neck, mala */}
-              <path d="M-15 -262 L15 -262 L12 -250 L-12 -250Z" fill="#f7e8c9" stroke="#d9b878" />
-              <rect x="-9" y="-274" width="18" height="22" fill={SKIN_G} />
-              <path d="M-20 -258 Q0 -226 20 -258" stroke="#fff6dc" strokeWidth="4.5" fill="none" strokeDasharray="1 6.5" strokeLinecap="round" />
-              <path d="M-23 -255 Q0 -206 23 -255" stroke={GOLD} strokeWidth="3" fill="none" strokeDasharray="1 6" strokeLinecap="round" />
+              <path d="M-52 -252 L-26 -259 L48 -140 L26 -122Z" fill="url(#vm-stole)" />
+              <path d="M-52 -252 L26 -122 M-26 -259 L48 -140" stroke="#e8c970" strokeWidth="2" />
+              <path d="M26 -124 L48 -142 L54 -94 L32 -88Z" fill="url(#vm-stole)" />
+              <path d="M31 -91 L54 -96" stroke="#e8c970" strokeWidth="2.6" />
+              <path d="M32 -88 L32 -80 M37 -89 L37 -80 M42 -90 L42 -80 M47 -92 L47 -82 M52 -94 L52 -84" stroke="#e8c970" strokeWidth="1.8" strokeLinecap="round" />
+              {/* collar, neck, kundan haar */}
+              <path d="M-15 -262 L15 -262 L12 -250 L-12 -250Z" fill="#fcf2da" stroke="#d9b878" />
+              <path d="M-15 -262 L15 -262" stroke="url(#vm-gold)" strokeWidth="2.4" />
+              <rect x="-9.5" y="-274" width="19" height="22" fill="#d99b6e" />
+              <ellipse cx="0" cy="-269" rx="12" ry="4.5" fill="#7a4326" opacity=".25" />
+              <path d="M-21 -256 Q0 -222 21 -256" stroke="#fff7de" strokeWidth="4.2" fill="none" strokeDasharray="1 5.6" strokeLinecap="round" />
+              <path d="M-24 -253 Q0 -204 24 -253" stroke="#fff7de" strokeWidth="4.2" fill="none" strokeDasharray="1 5.6" strokeLinecap="round" />
+              <path d="M0 -216 C-6 -208 -5 -200 0 -195 C5 -200 6 -208 0 -216Z" fill="url(#vm-gold)" stroke="#a97a2a" strokeWidth=".9" />
+              <circle cx="0" cy="-206" r="2.4" fill="#d6203f" />
               {/* arms */}
-              <path d="M-48 -244 Q-68 -204 -36 -180" stroke="#f7e8c9" strokeWidth="21" strokeLinecap="round" fill="none" />
-              <path d="M48 -244 Q68 -204 36 -180" stroke="#f7e8c9" strokeWidth="21" strokeLinecap="round" fill="none" />
+              <path d="M-48 -244 Q-68 -204 -36 -180" stroke="#f1e0b9" strokeWidth="21" strokeLinecap="round" fill="none" />
+              <path d="M48 -244 Q68 -204 36 -180" stroke="#f1e0b9" strokeWidth="21" strokeLinecap="round" fill="none" />
+              <path d="M-47 -192 L-35 -178 M47 -192 L35 -178" stroke="url(#vm-gold)" strokeWidth="5" strokeLinecap="round" />
+              <path d="M-58 -222 Q-60 -208 -52 -198 M58 -222 Q60 -208 52 -198" stroke="#d9b878" strokeWidth="1.6" fill="none" />
               {/* head (tilts toward bride) */}
               <g transform="translate(0 -268)">
                 <g className="vm-tilt-groom">
                   <g transform="translate(0 268)">
-                    <circle cx="-31" cy="-294" r="6" fill="#cf9568" />
-                    <circle cx="31" cy="-294" r="6" fill="#cf9568" />
-                    <circle cx="0" cy="-296" r="30" fill={SKIN_G} />
-                    <path d="M-36 -302 Q-42 -346 0 -352 Q42 -346 36 -302 Q0 -322 -36 -302Z" fill="url(#vm-turban)" />
-                    <path d="M-30 -318 Q0 -340 30 -318 M-34 -330 Q0 -352 34 -330 M-22 -340 Q0 -352 22 -340" stroke="#ffb067" strokeWidth="2.2" fill="none" opacity=".8" />
-                    <path d="M-36 -304 Q0 -322 36 -304" stroke={GOLD} strokeWidth="5" fill="none" />
-                    <circle cx="10" cy="-318" r="5" fill={GOLD} stroke="#b8862e" strokeWidth="1.2" />
-                    <path d="M12 -322 Q34 -360 10 -380 Q24 -356 8 -326Z" fill="#f6e3a1" stroke="#d9b878" strokeWidth="1.2" />
-                    <circle cx="0" cy="-308" r="2.6" fill="#c1182f" />
-                    <circle cx="-11" cy="-298" r="2.6" fill="#2a1210" />
-                    <circle cx="11" cy="-298" r="2.6" fill="#2a1210" />
-                    <path d="M-17 -306 Q-11 -309 -5 -306 M5 -306 Q11 -309 17 -306" stroke="#2a1210" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-                    <path d="M-13 -285 Q0 -291 13 -285 Q0 -281 -13 -285Z" fill="#2a1210" />
-                    <path d="M-8 -276 Q0 -270 8 -276" stroke="#8f3b2a" strokeWidth="2" fill="none" strokeLinecap="round" />
-                    <circle cx="-19" cy="-284" r="5" fill="#e48a74" opacity=".3" />
-                    <circle cx="19" cy="-284" r="5" fill="#e48a74" opacity=".3" />
+                    <ellipse cx="-28.5" cy="-295" rx="5" ry="7" fill="#c98b5f" />
+                    <ellipse cx="28.5" cy="-295" rx="5" ry="7" fill="#c98b5f" />
+                    <circle cx="-28" cy="-288" r="2" fill="#f1d27a" />
+                    <circle cx="28" cy="-288" r="2" fill="#f1d27a" />
+                    <path d="M-27 -300 C-27 -322 27 -322 27 -300 C27 -282 17 -266 0 -266 C-17 -266 -27 -282 -27 -300Z" fill="url(#vm-skin-g)" />
+                    <path d="M-22 -284 Q0 -262 22 -284 Q18 -268 0 -266 Q-18 -268 -22 -284Z" fill="#3a2418" opacity=".12" />
+                    <path d="M-38 -300 C-46 -332 -30 -358 0 -360 C30 -358 46 -332 38 -300 C22 -313 -22 -313 -38 -300Z" fill="url(#vm-leheriya)" stroke="#a8260f" strokeWidth="1" />
+                    <path d="M-34 -313 C-12 -336 18 -340 38 -319 M-30 -326 C-8 -346 20 -348 36 -333 M-22 -338 C-4 -352 14 -352 26 -342" stroke="#000" strokeWidth="2.2" fill="none" opacity=".18" />
+                    <path d="M-30 -318 C-10 -340 14 -344 32 -328" stroke="#fff" strokeWidth="2" fill="none" opacity=".25" />
+                    <path d="M-38 -302 C-20 -315 20 -315 38 -302" stroke="url(#vm-gold)" strokeWidth="6" fill="none" />
+                    <path d="M-36 -303 C-20 -314 20 -314 36 -303" stroke="#fff7de" strokeWidth="2.6" fill="none" strokeDasharray="1 5" strokeLinecap="round" />
+                    <path d="M12 -322 Q36 -362 10 -384 Q26 -358 8 -326Z" fill="#fbf1cf" stroke="#d9b878" strokeWidth="1.2" />
+                    <path d="M12 -330 Q24 -358 12 -374" stroke="#d9b878" strokeWidth="1" fill="none" />
+                    <path d="M10 -330 C3 -322 4 -313 10 -308 C16 -313 17 -322 10 -330Z" fill="url(#vm-gold)" stroke="#a97a2a" strokeWidth="1" />
+                    <circle cx="10" cy="-318" r="2.6" fill="#d6203f" />
+                    <circle cx="0" cy="-306" r="2.4" fill="#c1182f" />
+                    <g transform="translate(0 -297)">
+                      <g className="vm-blink">
+                        <g transform="translate(0 297)">
+                          <path d="M-17 -297 Q-11 -302 -5 -297 Q-11 -293 -17 -297Z" fill="#fff" />
+                          <path d="M5 -297 Q11 -302 17 -297 Q11 -293 5 -297Z" fill="#fff" />
+                          <circle cx="-11" cy="-297" r="2.7" fill="#2a1710" />
+                          <circle cx="11" cy="-297" r="2.7" fill="#2a1710" />
+                          <circle cx="-10.2" cy="-297.9" r=".9" fill="#fff" />
+                          <circle cx="11.8" cy="-297.9" r=".9" fill="#fff" />
+                          <path d="M-17 -297 Q-11 -302.5 -5 -297 M5 -297 Q11 -302.5 17 -297" stroke="#1b0f0a" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                        </g>
+                      </g>
+                    </g>
+                    <path d="M-19 -306 Q-11 -310.5 -4 -306 M4 -306 Q11 -310.5 19 -306" stroke="#1f120c" strokeWidth="2.6" fill="none" strokeLinecap="round" />
+                    <path d="M-1.5 -294 Q-4.5 -286 -2.4 -282.5 Q0 -281 2.4 -282.5 M1.5 -294 Q4.5 -286 2.4 -282.5" stroke="#9a5a36" strokeWidth="1.4" fill="none" opacity=".6" strokeLinecap="round" />
+                    <path d="M0 -283 C-4 -287 -12 -288 -17 -283.5 C-12 -281.5 -6 -282 0 -279.5 C6 -282 12 -281.5 17 -283.5 C12 -288 4 -287 0 -283Z" fill="#2a1710" />
+                    <path d="M-7 -275 Q0 -270 7 -275" stroke="#9a4a38" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+                    <circle cx="-19" cy="-284" r="5" fill="#e48a74" opacity=".28" />
+                    <circle cx="19" cy="-284" r="5" fill="#e48a74" opacity=".28" />
                   </g>
                 </g>
               </g>
               {/* varmala in his hands */}
               <Garland x1={-33} y1={-176} x2={33} y2={-176} sag={62} count={24} />
               <Garland x1={-31} y1={-170} x2={31} y2={-170} sag={52} count={20} r={5} />
-              <circle cx="-33" cy="-176" r="8.5" fill={SKIN_G} />
-              <circle cx="33" cy="-176" r="8.5" fill={SKIN_G} />
+              <circle cx="-33" cy="-176" r="8.5" fill="#e2a678" />
+              <circle cx="33" cy="-176" r="8.5" fill="#e2a678" />
+              <path d="M-38 -172 q3 5 8 4 M-35 -168 q3 5 8 3 M38 -172 q-3 5 -8 4 M35 -168 q-3 5 -8 3" stroke="#a96a42" strokeWidth="1.3" fill="none" strokeLinecap="round" />
             </g>
-            <text x="0" y="40" textAnchor="middle" fontSize="24" fontWeight="600" fill="#591b2b"> </text>
+            <text x="0" y="40" textAnchor="middle" fontSize="24" fontWeight="600" fill="#591b2b">आयुष्मान सूरज</text>
           </g>
         </g>
 
