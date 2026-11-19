@@ -5,6 +5,7 @@ import ScrollEffects from "./components/ScrollEffects";
 import IntroGate from "./components/IntroGate";
 import { CornerOrnaments, FloralDivider } from "./components/Ornaments";
 import { vars } from "./lib/css";
+import VarmalaScene from "./components/VarmalaScene";
 
 // Fixed values (no Math.random) so server and client render identically.
 const sparkles = [
@@ -64,11 +65,11 @@ export default function Home() {
         <div className="scroll-cue" aria-hidden="true"><span /> SCROLL TO EXPLORE</div>
       </section>
 
-      <section className="couple-section section-space" id="couple">
+      {/* <section className="couple-section section-space" id="couple">
         <p className="section-kicker" data-reveal style={reveal(0)}>A CELEBRATION OF LOVE &amp; TRADITION</p>
         <h2 data-reveal style={reveal(100)}>दो दिल, एक पवित्र बंधन</h2>
-        <p className="section-intro" data-reveal style={reveal(200)}>ईश्वर की असीम कृपा एवं आप सभी के स्नेहाशीष से</p>
-        <div className="couple-photos" data-stagger>
+        <p className="section-intro" data-reveal style={reveal(200)}>ईश्वर की असीम कृपा एवं आप सभी के स्नेहाशीष से</p> */}
+        {/* <div className="couple-photos" data-stagger>
           <div className="photo-frame" style={vars({ "--i": 0 })}>
             <div className="photo-img">
               <picture>
@@ -87,8 +88,15 @@ export default function Home() {
               </picture>
             </div>
             <span>आयुष्मती शालू</span>
-          </div>
-        </div>
+          </div> 
+        </div> */}
+        
+        <section className="couple-section section-space" id="couple">
+        <p className="section-kicker" data-reveal style={reveal(0)}>A CELEBRATION OF LOVE &amp; TRADITION</p>
+        <h2 data-reveal style={reveal(100)}>दो दिल, एक पवित्र बंधन</h2>
+        <p className="section-intro" data-reveal style={reveal(200)}>ईश्वर की असीम कृपा एवं आप सभी के स्नेहाशीष से</p>
+        <VarmalaScene />
+        
         <div className="invitation-card" data-reveal="zoom" data-stagger>
           <CornerOrnaments />
           <div className="card-top-symbol" style={vars({ "--i": 1 })}>ॐ</div>
